@@ -14,9 +14,15 @@ body {
   background-size: contain;
 }
 .blue-hdr, .orange-hdr {
-  font-size: 40px;
+  font-size: 1.75vw;
   font-weight: 500;
   position: absolute;
+}
+.blue-hdr p, .orange-hdr p {
+  border: 1px solid red;
+  height: 50px;
+  width: 100%;
+  padding-block: 27px;
 }
 .blue-hdr {
   top: -45px;
