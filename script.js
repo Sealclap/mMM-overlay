@@ -137,11 +137,11 @@ $(() => {
     $(".svg .circle").css({ "stroke": "none" });
     
     $(".game-count").empty();
-    $(".game-count").append(`<span>Game ${gameNum}`);
+    $(".game-count").append(`<span>Game ${gameNum}</span>`);
     
     $(".blue-hdr").append(`<p>${d["game"]["teams"][0]["name"]}`);
     $(".orange-hdr").append(`<p>${d["game"]["teams"][1]["name"]}`);
-
+    
     
     let time_seconds = d["game"]["time_seconds"];
     let blueScore = d["game"]["teams"][0]["score"];
@@ -154,7 +154,7 @@ $(() => {
       $('.scoreboard').append(`<p class="blue-score">${blueScore}</p><p class="time">${Math.floor(time_seconds / 60)}:${(time_seconds % 60).toLocaleString('en-us', {minimumIntegerDigits: 2, useGrouping: false})}</p><p class="orange-score">${orangeScore}</p>`);
     }
 
-    if (isStarted) { 
+    if (isStarted && !isReplay) { 
       if (d["game"]["hasTarget"]) {
         let target = d["game"]["target"];
         $(".selected").append(`<p class="watching">Now watching</p><p>${d["players"][target]["name"]}</p>`);
@@ -183,7 +183,7 @@ $(() => {
         $(".orange-players").append(pData);
       }
     }
-
+    
     for (let player of Object.values(d["players"])) {
       if (player["team"] === 0) {
         $(`.blue-players .${player["name"]} .progress-${player["name"]}`).progressbar({ "value": 0 });
@@ -196,7 +196,7 @@ $(() => {
         $(`.orange-players .${player["name"]} .progress-${player["name"]} > p`).css({ "background": "#DADA1A99", "height": "12px", "margin": 0 });
         $(`.orange-players .${player["name"]} .progress-${player["name"]}`).css({ "background": "#00000000", "height": "12px", "transform": "rotate(180deg)" });
       }
-
+      
       if (d["game"]["target"] === player["id"]) {
         $(".sel-boost .outer .inner .sel-boost-num").append(player["boost"]);
         if (player["boost"] === 0) {
@@ -211,7 +211,7 @@ $(() => {
   WsSubscribers.subscribe("game", "pre_countdown_begin", () => {
     isStarted = true;
   });
-
+  
   WsSubscribers.subscribe("game", "replay_start", () => {
     $(".main").css({ "background-image": "url('./scoreboard_only.png')" });
     $(".blue-players").css({ "visibility": "hidden" });
