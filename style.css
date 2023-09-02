@@ -1,0 +1,138 @@
+@font-face {
+  font-family: "Ethnocentric";
+  src: url('./font/ethnocentric\ rg.ttf');
+}
+body {
+  font-family: Ethnocentric, Arial, Helvetica, sans-serif;
+  color: white;
+}
+.main {
+  width: 100vw;
+  height: 100vh;
+  background-image: url('./scoreboard_only.png');
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+.blue-hdr, .orange-hdr {
+  font-size: 40px;
+  font-weight: 500;
+  position: absolute;
+}
+.blue-hdr {
+  top: -45px;
+  left: 250px;
+  width: 275px;
+  text-align: center;
+}
+.orange-hdr {
+  top: -45px;
+  right: 250px;
+  width: 275px;
+  text-align: center;
+}
+.scoreboard {
+  font-size: 32px;
+  position: absolute;
+  display: flex;
+  left: 588px;
+  top: -10px;
+}
+.time {
+  text-align: center;
+  width: 103px;
+}
+.game-count {
+  position: absolute;
+  font-size: 20px;
+  left: 590px;
+  top: 70px;
+}
+.blue-score, .orange-score {
+  position: absolute;
+}
+.blue-score {
+  right: 120px;
+  text-align: left;
+}
+.orange-score {
+  left: 120px;
+  text-align: right;
+}
+.blue-players, .orange-players {
+  position: absolute;
+  font-size: 12px;
+  font-weight: 500;
+}
+.blue-players div, .orange-players div {
+  margin-block: 5px;
+  width: 200px;
+}
+.player p {
+  width: 100%;
+  margin: 0;
+}
+.blue-players {
+  top: 75px;
+  left: 15px;
+}
+.orange-players {
+  top: 75px;
+  right: 15px;
+  text-align: right;
+}
+.watching {
+  font-size: 12px;
+}
+.selected {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  font-size: 24px;
+  bottom: 30px;
+  left: 30px;
+  background-color: rgba(45,178,182,230);
+  border-radius: 30px;
+  padding-inline: 15px;
+}
+.selected p {
+  margin: 5px;
+}
+.sel-boost {
+  width: 146px;
+  height: 146px;
+  position: absolute;
+  right: 29px;
+  bottom: 30px;
+}
+.outer {
+  border-radius: 50%;
+  width: 146px;
+  height: 146px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.inner {
+  border-radius: 50%;
+  width: 118px;
+  height: 118px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sel-boost-num {
+  font-size: 36px;
+  color: #eec02e;
+}
+.svg {
+  position: absolute;
+  right: 21px;
+  bottom: 27px;
+  transform: rotate(97deg);
+}
+.circle {
+  fill: none;
+  stroke: none;
+  stroke-width: 16px;
+  stroke-dasharray: 450;
+}

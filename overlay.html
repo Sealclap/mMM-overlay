@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <!-- <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css" /> -->
+  <link rel="stylesheet" href="./jquery-ui/jquery-ui.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="text/javascript" src="./game.js"></script>
+  <script type="text/javascript" src="./script.js" defer></script>
+  <title>mMM</title>
+</head>
+<body>
+
+  <div class="main">
+
+    <div class="blue-hdr"> <!-- Team 0 -->
+      <p></p>
+    </div>
+    <div class="blue-players"></div>
+
+    <div class="scoreboard">
+      <p class="blue-score"></p>
+      <p class="time"></p>
+      <p class="orange-score"></p>
+    </div>
+
+    <div class="game-count">Game <span class="game-num">1</span></div>
+
+    <div class="orange-hdr"> <!-- Team 1 -->
+      <p></p>
+    </div>
+    <div class="orange-players"></div>
+
+    <div class="selected"></div>
+
+    <div class="sel-boost">
+      <div class="outer">
+        <div class="inner">
+          <div class="sel-boost-num"></div>
+        </div>
+      </div>
+    </div>
+    
+    <svg class="svg" xmlns="https://www.w3.org/2000/svg" version="1.1" width="155px" height="155px">
+      <circle class="circle" cx="80" cy="80" r="66" stroke-linecap="round"></circle>
+    </svg>
+
+  </div>
+
+</body>
+</html>

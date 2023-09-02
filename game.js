@@ -1,0 +1,1 @@
+const gameNum = 1;

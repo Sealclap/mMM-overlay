@@ -1,0 +1,249 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>movie's Mode Mixup</title>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+    <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+    <style>
+      body {
+        width: 95vw;
+      }
+      .boost {
+        position: absolute;
+        display: grid;
+        width: 95%;
+        margin-inline: 0;
+        top: 40px;
+        left: 20px;
+        color: black;
+        font-size: 20px;
+        font-family: Poppins, Arial, Helvetica, sans-serif;
+        grid-template-areas: "blue blank orange";
+        grid-template-columns: 1fr 1.75fr 1fr;
+      }
+      .blue, .orange {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border-radius: 10px;
+      }
+      .blue {
+        background-color: #1874ffa6;
+        grid-area: blue;
+      }
+      .orange {
+        background-color: #C26418a6;
+        grid-area: orange;
+      }
+      p {
+        margin: 0;
+      }
+      table {
+        width: 95%;
+        font-size: 0.75em;
+      }
+      th {
+        text-align: left;
+        width: 30%;
+      }
+      .narrow {
+        text-align: right;
+        width: 10%;
+        min-width: 10%;
+      }
+      .wide {
+        width: 60%;
+      }
+      .progress {
+        width: 100%;
+        height: 0.5em;
+        color: #dada1a99;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="boost">
+      <div class="blue team"> <!-- team 0 --> 
+        <p class="blue-hdr"></p>
+        <table class="blue-team-info"></table>
+      </div>
+      <div class="orange team"> <!-- team 1 -->
+        <p class="orange-hdr"></p>
+        <table class="orange-team-info"></table>
+      </div>
+    </div>
+
+    <script>
+      const WsSubscribers = {
+        __subscribers: {},
+        webSocket: undefined,
+        webSocketConnected: false,
+        registerQueue: [],
+        init: function(port, debug, debugFilters) {
+          port = port || 49322;
+          debug = debug || false;
+          if (debug) {
+            if (debugFilters !== undefined) {
+              console.warn("WebSocket Debug Mode enabled with filtering. Only events not in the filter list will be dumped");
+            } else {
+              console.warn("WebSocket Debug Mode enabled without filters applied. All events will be dumped");
+              console.warn("To use filters, pass in an array of 'channel:event' strings to the second parameter of the init function");
+            }
+          }
+          WsSubscribers.webSocket = new WebSocket("ws://localhost:" + port);
+          WsSubscribers.webSocket.onmessage = function (event) {
+            let jEvent = JSON.parse(event.data);
+            if (!jEvent.hasOwnProperty('event')) {
+              return;
+            }
+            let eventSplit = jEvent.event.split(":");
+            let channel = eventSplit[0];
+            let event_event = eventSplit[1];
+            if (debug) {
+              if (!debugFilters) {
+                console.log(channel, event_event, jEvent);
+              } else if (debugFilters && debugFilters.indexOf(jEvent.event) < 0) {
+                console.log(channel, event_event, jEvent);
+              }
+            }
+            WsSubscribers.triggerSubscribers(channel, event_event, jEvent.data);
+          }
+          WsSubscribers.webSocket.onopen = function () {
+            WsSubscribers.triggerSubscribers("ws", "open");
+            WsSubscribers.webSocketConnected = true;
+            WsSubscribers.registerQueue.forEach((r) => {
+              WsSubscribers.send("wsRelay", "register", r);
+            });
+            WsSubscribers.registerQueue = [];
+          }
+          WsSubscribers.webSocket.onerror = function () {
+            WsSubscribers.triggerSubscribers("ws", "error");
+            WsSubscribers.webSocketConnected = false;
+          }
+          WsSubscribers.webSocket.onclose = function () {
+            WsSubscribers.triggerSubscribers("ws", "close");
+            WsSubscribers.webSocketConnected = false;
+          }
+        },
+        /**
+         * Add callbacks for when certain events are thrown
+         * Execution is guaranteed to be in First In First Out order
+         * @param channels
+         * @param events
+         * @param callback
+         */
+        subscribe: function(channels, events, callback) {
+          if (typeof channels === "string") {
+            let channel = channels;
+            channels = [];
+            channels.push(channel);
+          }
+          if (typeof events === "string") {
+            let event = events;
+            events = [];
+            events.push(event);
+          }
+          channels.forEach(function (c) {
+            events.forEach(function (e) {
+              if (!WsSubscribers.__subscribers.hasOwnProperty(c)) {
+                WsSubscribers.__subscribers[c] = {};
+              }
+              if (!WsSubscribers.__subscribers[c].hasOwnProperty(e)) {
+                WsSubscribers.__subscribers[c][e] = [];
+                if (WsSubscribers.webSocketConnected) {
+                  WsSubscribers.send("wsRelay", "register", `${c}:${e}`);
+                } else {
+                  WsSubscribers.registerQueue.push(`${c}:${e}`)
+                }
+              }
+              WsSubscribers.__subscribers[c][e].push(callback);
+            });
+          });
+        },
+        clearEventCallbacks: function (channel, event) {
+          if (WsSubscribers.__subscribers.hasOwnProperty(channel) && WsSubscribers.__subscribers[channel].hasOwnProperty(event)) {
+            WsSubscribers.__subscribers[channel] = {};
+          }
+        },
+        triggerSubscribers: function (channel, event, data) {
+          if (WsSubscribers.__subscribers.hasOwnProperty(channel) && WsSubscribers.__subscribers[channel].hasOwnProperty(event)) {
+            WsSubscribers.__subscribers[channel][event].forEach(function (callback) {
+              if (callback instanceof Function) {
+                callback(data);
+              }
+            });
+          }
+        },
+        send: function (channel, event, data) {
+          if (typeof channel !== "string") {
+            console.error("Channel must be a string");
+            return;
+          }
+          if (typeof event !== "string") {
+            console.error("Event must be a string");
+            return;
+          }
+          if (channel === "local") {
+            this.triggerSubscribers(channel, event, data);
+          } else {
+            let cEvent = channel + ":" + event;
+            WsSubscribers.webSocket.send(JSON.stringify({
+              "event": cEvent,
+              "data": data
+            }));
+          }
+        }
+      }
+
+      $(() => {
+        WsSubscribers.init(49322, true);
+        WsSubscribers.subscribe("game", "update_state", (d) => {
+        
+          WsSubscribers.subscribe("game", "round_started_go", () => {
+            $(".blue.team .blue-team-info").empty();
+            $(".orange.team .orange-team-info").empty();
+
+            $(".blue.team .blue-hdr").text(`${d["game"]["teams"][0]["name"]}`);
+            $(".orange.team .orange-hdr").text(`${d["game"]["teams"][1]["name"]}`);
+
+            for (let player of Object.values(d["players"])) {
+              let pData = "<tr class='" + player["name"] + "'><th>" + player["name"] + ":</th><td class='wide'><div class='progress'></div></td><td class='" + player["name"] + "-txt narrow'>" + player["boost"] + "</td></tr>";
+              if (player["team"] === 0) {
+                $(".blue.team .blue-team-info").append(pData);
+              } else if (player["team"] === 1) {
+                $(".orange.team .orange-team-info").append(pData);
+              }
+            }
+          });
+
+          for (let player of Object.values(d["players"])) {
+            if (player["team"] === 0) {
+              $(`.blue.team .blue-team-info .${player["name"]} .${player["name"]}-txt.narrow`).text(player["boost"]);
+              $(`.blue.team .blue-team-info .${player["name"]} .wide .progress`).progressbar({ "value": 0 });
+              $(`.blue.team .blue-team-info .${player["name"]} .wide .progress`).progressbar("value", player["boost"]);
+              $(`.blue.team .blue-team-info .${player["name"]} .wide .progress > div`).css({ "background": "#DADA1A99" });
+              $(`.blue.team .blue-team-info .${player["name"]} .wide .progress`).css({ "background": "#1873FFA6" });
+            } else if (player["team"] === 1) {
+              $(`.orange.team .orange-team-info .${player["name"]} .${player["name"]}-txt.narrow`).text(player["boost"]);
+              $(`.orange.team .orange-team-info .${player["name"]} .wide .progress`).progressbar({ "value": 0 });
+              $(`.orange.team .orange-team-info .${player["name"]} .wide .progress`).progressbar("value", player["boost"]);
+              $(`.orange.team .orange-team-info .${player["name"]} .wide .progress > div`).css({ "background": "#DADA1A99" });
+              $(`.orange.team .orange-team-info .${player["name"]} .wide .progress`).css({ "background": "#C26418A6" });
+            }
+          }
+        });
+
+        WsSubscribers.subscribe("game", "match_ended", () => {
+          $(".blue.team .blue-hdr").empty()
+          $(".blue.team .blue-team-info").empty();
+          $(".orange.team .orange-hdr").empty();
+          $(".orange.team .orange-team-info").empty();
+        });
+      });
+    </script>
+  </body>
+</html>
