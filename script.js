@@ -168,41 +168,41 @@ $(() => {
         $(".main").css({ "background-image": "url('./no_boost_gauge.png')" });
         $(".selected").css({ "background-color": "none", "border": "none" });
       }
-    }
-
-    $(".blue-players").empty();
-    $(".orange-players").empty();
-    
-    
-    for (let player of Object.values(d["players"])) {
-      let pData = "<div class='player " + player["name"] + "'><p>" + player["name"] + "</p><p class='progress-" + player["name"] + "'></p></div>"
       
-      if (player["team"] === 0) {
-        $(".blue-players").append(pData);
-      } else if (player["team"] === 1) {
-        $(".orange-players").append(pData);
-      }
-    }
-    
-    for (let player of Object.values(d["players"])) {
-      if (player["team"] === 0) {
-        $(`.blue-players .${player["name"]} .progress-${player["name"]}`).progressbar({ "value": 0 });
-        $(`.blue-players .${player["name"]} .progress-${player["name"]}`).progressbar("value", player["boost"]);
-        $(`.blue-players .${player["name"]} .progress-${player["name"]} > p`).css({ "background": "#DADA1A99", "height": "12px", "margin": 0 });
-        $(`.blue-players .${player["name"]} .progress-${player["name"]}`).css({ "background": "#00000000", "height": "12px" });
-      } else if (player["team"] === 1) {
-        $(`.orange-players .${player["name"]} .progress-${player["name"]}`).progressbar({ "value": 0 });
-        $(`.orange-players .${player["name"]} .progress-${player["name"]}`).progressbar("value", player["boost"]);
-        $(`.orange-players .${player["name"]} .progress-${player["name"]} > p`).css({ "background": "#DADA1A99", "height": "12px", "margin": 0 });
-        $(`.orange-players .${player["name"]} .progress-${player["name"]}`).css({ "background": "#00000000", "height": "12px", "transform": "rotate(180deg)" });
-      }
+        $(".blue-players").empty();
+        $(".orange-players").empty();
       
-      if (d["game"]["target"] === player["id"]) {
-        $(".sel-boost .outer .inner .sel-boost-num").append(player["boost"]);
-        if (player["boost"] === 0) {
-          $(".svg .circle").css({ "stroke": "none" });
-        } else {
-          $(".svg .circle").css({ "stroke": "#eec02e", "stroke-dashoffset": `${222 + (222 * (1 - player["boost"] / 100))}` });
+      
+        for (let player of Object.values(d["players"])) {
+        let pData = "<div class='player " + player["name"] + "'><p>" + player["name"] + "</p><p class='progress-" + player["name"] + "'></p></div>"
+      
+        if (player["team"] === 0) {
+          $(".blue-players").append(pData);
+        } else if (player["team"] === 1) {
+          $(".orange-players").append(pData);
+        }
+      }
+    
+      for (let player of Object.values(d["players"])) {
+        if (player["team"] === 0) {
+          $(`.blue-players .${player["name"]} .progress-${player["name"]}`).progressbar({ "value": 0 });
+          $(`.blue-players .${player["name"]} .progress-${player["name"]}`).progressbar("value", player["boost"]);
+          $(`.blue-players .${player["name"]} .progress-${player["name"]} > p`).css({ "background": "#DADA1A99", "height": "12px", "margin": 0 });
+          $(`.blue-players .${player["name"]} .progress-${player["name"]}`).css({ "background": "#00000000", "height": "12px" });
+        } else if (player["team"] === 1) {
+          $(`.orange-players .${player["name"]} .progress-${player["name"]}`).progressbar({ "value": 0 });
+          $(`.orange-players .${player["name"]} .progress-${player["name"]}`).progressbar("value", player["boost"]);
+          $(`.orange-players .${player["name"]} .progress-${player["name"]} > p`).css({ "background": "#DADA1A99", "height": "12px", "margin": 0 });
+          $(`.orange-players .${player["name"]} .progress-${player["name"]}`).css({ "background": "#00000000", "height": "12px", "transform": "rotate(180deg)" });
+        }
+      
+        if (d["game"]["target"] === player["id"]) {
+          $(".sel-boost .outer .inner .sel-boost-num").append(player["boost"]);
+          if (player["boost"] === 0) {
+            $(".svg .circle").css({ "stroke": "none" });
+          } else {
+            $(".svg .circle").css({ "stroke": "#eec02e", "stroke-dashoffset": `${222 + (222 * (1 - player["boost"] / 100))}` });
+          }
         }
       }
     }
