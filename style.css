@@ -9,9 +9,17 @@ body {
 .main {
   width: 100vw;
   height: 100vh;
-  background-image: url('./scoreboard_only.png');
+  background-image: url('./assets/scoreboard_only.png');
   background-repeat: no-repeat;
   background-size: contain;
+}
+.replay {
+  position: absolute;
+  top: 90px;
+  left: 565px;
+}
+.replay #replay-vid {
+  border-radius: 5px 5px 32px 32px;
 }
 .blue-hdr, .orange-hdr {
   font-size: 1.75vw;
@@ -69,8 +77,13 @@ body {
   font-weight: 500;
 }
 .blue-players div, .orange-players div {
-  margin-block: 5px;
+  display: flex;
+  flex-direction: column;
+  margin-block: 10px;
   width: 200px;
+}
+.orange-players div {
+  align-items: flex-end;
 }
 .player p {
   width: 100%;

@@ -1,3 +1,10 @@
+const onesNoBoostBgPath = './assets/ones/1s_noboost.png';
+const onesBoostBgPath = './assets/ones/1s_boost.png';
+const twosNoBoostBgPath = './assets/twos/2s_noboost.png';
+const twosBoostBgPath = './assets/twos/2s_boost.png';
+const threesNoBoostBgPath = './assets/threes/3s_noboost.png';
+const threesBoostBgPath = './assets/threes/3s_boost.png';
+
 const WsSubscribers = {
   __subscribers: {},
   webSocket: undefined,
@@ -122,17 +129,23 @@ const WsSubscribers = {
 let isReplay = false;
 let isStarted = false;
 
+$(".replay #replay-vid").css({ "visibility": "hidden" });
+
+$(".game-count").empty();
+$(".game-count").append(`<span>Game ${gameNum}</span>`);
+
 $(() => {
   WsSubscribers.init(49322, true);
   WsSubscribers.subscribe("game", "update_state", (d) => {
     $(".scoreboard").empty();
     $(".blue-hdr").empty();
     $(".orange-hdr").empty();
-    if (!isReplay){
-      $(".selected").empty();
-    } else {
-      $(".selected").css({ "background-color": "rgba(0,0,0,0)", "border": "none" });
-    }
+    $(".selected").empty();
+    // if (!isReplay){
+    //   $(".selected").empty();
+    // } else {
+    //   $(".selected").css({ "background-color": "rgba(0,0,0,0)", "border": "none" });
+    // }
     $(".sel-boost-num").empty();
     $(".svg .circle").css({ "stroke": "none" });
     
@@ -142,6 +155,8 @@ $(() => {
     $(".blue-hdr").append(`<p>${d["game"]["teams"][0]["name"]}`);
     $(".orange-hdr").append(`<p>${d["game"]["teams"][1]["name"]}`);
     
+    const hasTarget = d["game"]["hasTarget"];
+    const teamSize = Object.keys(d["players"]).length / 2;
     
     let time_seconds = d["game"]["time_seconds"];
     let blueScore = d["game"]["teams"][0]["score"];
@@ -153,21 +168,57 @@ $(() => {
     } else {
       $('.scoreboard').append(`<p class="blue-score">${blueScore}</p><p class="time">${Math.floor(time_seconds / 60)}:${(time_seconds % 60).toLocaleString('en-us', {minimumIntegerDigits: 2, useGrouping: false})}</p><p class="orange-score">${orangeScore}</p>`);
     }
-
-    if (isStarted && !isReplay) { 
-      if (d["game"]["hasTarget"]) {
-        let target = d["game"]["target"];
-        $(".selected").append(`<p class="watching">Now watching</p><p>${d["players"][target]["name"]}</p>`);
-        if (d["players"][target]["team"] === 0) {
-          $(".selected").css({ "background-color": "rgba(45,178,182,0.8)", "border": "1px solid white"});
-        } else {
-          $(".selected").css({ "background-color": "rgba(204,153,51,0.8)", "border": "1px solid white"});
-        }
-        $(".main").css({ "background-image": "url('./mmm_bg.png')" })
-      } else if (!d["game"]["hasTarget"] && !isReplay) {
-        $(".main").css({ "background-image": "url('./no_boost_gauge.png')" });
-        $(".selected").css({ "background-color": "none", "border": "none" });
+    
+    
+    if (isStarted) {
+      if (!isReplay) {
+        $('.replay #replay-vid').css({ "visibility": "hidden" });
+      } else {
+        $('.replay #replay-vid').css({ "visibility": "visible" });
       }
+      
+      if (teamSize === 1) {
+        if (hasTarget) {
+          $(".main").css({ "background-image": `url(${onesBoostBgPath})` })
+        } else {
+          $(".main").css({ "background-image": `url(${onesNoBoostBgPath})` });
+        }
+      } else if (teamSize === 2) {
+        if (hasTarget) {
+          $(".main").css({ "background-image": `url(${twosBoostBgPath})` });
+        } else {
+          $(".main").css({ "background-image": `url(${twosNoBoostBgPath})` });
+        }
+      } else if (teamSize === 3) {
+        if (hasTarget) {
+          $(".main").css({ "background-image": `url(${threesBoostBgPath})` });
+        } else {
+          $(".main").css({ "background-image": `url(${threesNoBoostBgPath})` });
+        }
+      }
+
+      if (hasTarget) {
+        const target = d["game"]["target"];
+        $(".selected").append(`<p>${d["players"][target]["name"]}</p>`).css({ "background-image": "url('./assets/name_banner.png')"});
+      } else if (!hasTarget && !isReplay) {
+        $(".selected").css({ "background-image": "none" });
+      }
+    }
+
+    // if (isStarted && !isReplay) { 
+    //   if (d["game"]["hasTarget"]) {
+    //     let target = d["game"]["target"];
+    //     $(".selected").append(`<p class="watching">Now watching</p><p>${d["players"][target]["name"]}</p>`);
+    //     if (d["players"][target]["team"] === 0) {
+    //       $(".selected").css({ "background-color": "rgba(45,178,182,0.8)", "border": "1px solid white"});
+    //     } else {
+    //       $(".selected").css({ "background-color": "rgba(204,153,51,0.8)", "border": "1px solid white"});
+    //     }
+    //     $(".main").css({ "background-image": "url('./mmm_bg.png')" })
+    //   } else if (!d["game"]["hasTarget"] && !isReplay) {
+    //     $(".main").css({ "background-image": "url('./no_boost_gauge.png')" });
+    //     $(".selected").css({ "background-color": "none", "border": "none" });
+    //   }
       
         $(".blue-players").empty();
         $(".orange-players").empty();
@@ -184,16 +235,28 @@ $(() => {
       }
     
       for (let player of Object.values(d["players"])) {
-        if (player["team"] === 0) {
-          $(`.blue-players .${player["name"]} .progress-${player["name"]}`).progressbar({ "value": 0 });
-          $(`.blue-players .${player["name"]} .progress-${player["name"]}`).progressbar("value", player["boost"]);
-          $(`.blue-players .${player["name"]} .progress-${player["name"]} > p`).css({ "background": "#DADA1A99", "height": "12px", "margin": 0 });
-          $(`.blue-players .${player["name"]} .progress-${player["name"]}`).css({ "background": "#00000000", "height": "12px" });
-        } else if (player["team"] === 1) {
-          $(`.orange-players .${player["name"]} .progress-${player["name"]}`).progressbar({ "value": 0 });
-          $(`.orange-players .${player["name"]} .progress-${player["name"]}`).progressbar("value", player["boost"]);
-          $(`.orange-players .${player["name"]} .progress-${player["name"]} > p`).css({ "background": "#DADA1A99", "height": "12px", "margin": 0 });
-          $(`.orange-players .${player["name"]} .progress-${player["name"]}`).css({ "background": "#00000000", "height": "12px", "transform": "rotate(180deg)" });
+        if (player["team"] === 0) { // #DADA1A99
+          $(`.blue-players .${player["name"]} .progress-${player["name"]}`).css({
+            "background-color": "#DADA1A99",
+            "width": `${player["boost"]}%`,
+            "height": "8px",
+            "border-radius": "1em"
+          });
+          // $(`.blue-players .${player["name"]} .progress-${player["name"]}`).progressbar({ "value": 0 });
+          // $(`.blue-players .${player["name"]} .progress-${player["name"]}`).progressbar("value", player["boost"]);
+          // $(`.blue-players .${player["name"]} .progress-${player["name"]} > p`).css({ "background": "#DADA1A99", "height": "12px", "margin": 0 });
+          // $(`.blue-players .${player["name"]} .progress-${player["name"]}`).css({ "background": "#00000000", "height": "12px" });
+        } else if (player["team"] === 1) { // #DADA1A99
+          $(`.orange-players .${player["name"]} .progress-${player["name"]}`).css({
+            "background-color": "#DADA1A99",
+            "width": `${player["boost"]}%`,
+            "height": "8px",
+            "border-radius": "1em"
+          });
+          // $(`.orange-players .${player["name"]} .progress-${player["name"]}`).progressbar({ "value": 0 });
+          // $(`.orange-players .${player["name"]} .progress-${player["name"]}`).progressbar("value", player["boost"]);
+          // $(`.orange-players .${player["name"]} .progress-${player["name"]} > p`).css({ "background": "#DADA1A99", "height": "12px", "margin": 0 });
+          // $(`.orange-players .${player["name"]} .progress-${player["name"]}`).css({ "background": "#00000000", "height": "12px", "transform": "rotate(180deg)" });
         }
       
         if (d["game"]["target"] === player["id"]) {
@@ -205,7 +268,6 @@ $(() => {
           }
         }
       }
-    }
   });
 
   WsSubscribers.subscribe("game", "pre_countdown_begin", () => {
@@ -213,26 +275,20 @@ $(() => {
   });
   
   WsSubscribers.subscribe("game", "replay_start", () => {
-    $(".main").css({ "background-image": "url('./scoreboard_only.png')" });
-    $(".blue-players").css({ "visibility": "hidden" });
-    $(".orange-players").css({ "visibility": "hidden" });
-    $(".selected").empty();
-    $(".selected").append("<p>Replay</p>");
+    $(".replay #replay-vid").css({ "visibility": "visible" }).load();
     isReplay = true;
   }); 
 
   WsSubscribers.subscribe("game", "replay_end", () => {
-    $(".main").css({ "background-image": "url('./no_boost_gauge.png')" });
-    $(".blue-players").css({ "visibility": "visible" });
-    $(".orange-players").css({ "visibility": "visible" });
-    $(".selected").empty();
+    $(".replay #replay-vid").css({ "visibility": "hidden" });
     isReplay = false;
   });
 
   WsSubscribers.subscribe("game", "match_ended", () => {
     $(".blue-players").empty();
     $(".orange-players").empty();
-    $(".main").css({ "background-image": "url('./scoreboard_only.png')" });
+    $(".main").css({ "background-image": "url('./assets/scoreboard_only.png')" });
+    $(".svg .circle").css({ "stroke": "none" });
     isStarted = false;
   });
 
@@ -245,7 +301,7 @@ $(() => {
     $(".blue-players").empty();
     $(".orange-players").empty();
     $(".svg .circle").css({ "stroke": "none" });
-    $(".main").css({ "background-image": "url('./scoreboard_only.png')" });
+    $(".main").css({ "background-image": "url('./assets/scoreboard_only.png')" });
     isStarted = false;
   });
 });
