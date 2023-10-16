@@ -15,14 +15,18 @@ body {
 }
 .replay {
   position: absolute;
-  top: 90px;
+  /* Below game number */
+  /* top: 90px; */
+  /* Cover game number */
+  top: 75px;
   left: 565px;
+
 }
 .replay #replay-vid {
   border-radius: 5px 5px 32px 32px;
 }
 .blue-hdr, .orange-hdr {
-  font-size: 1.75vw;
+  font-size: 1.4vw;
   font-weight: 500;
   position: absolute;
 }
@@ -32,13 +36,13 @@ body {
   padding-block: 27px;
 }
 .blue-hdr {
-  top: -45px;
+  top: -36px;
   left: 250px;
   width: 275px;
   text-align: center;
 }
 .orange-hdr {
-  top: -45px;
+  top: -36px;
   right: 250px;
   width: 275px;
   text-align: center;
@@ -105,15 +109,22 @@ body {
   position: absolute;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   font-size: 24px;
   bottom: 30px;
   left: 30px;
-  background-color: rgba(45,178,182,230);
   border-radius: 30px;
-  padding-inline: 15px;
+  height: 50px;
+  padding: 0;
 }
 .selected p {
-  margin: 5px;
+  width: 300px;
+  height: 100%;
+  text-align: center;
+  background-repeat: no-repeat;
+  margin: 0;
+  padding-block: 10px;
 }
 .sel-boost {
   width: 146px;
